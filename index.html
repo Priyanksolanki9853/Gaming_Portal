@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Priyank Solanki | Home</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto:wght@300;400;700&family=VT323&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- CSS VARIABLES & RESET --- */
+        :root {
+            /* Deep Space Background */
+            --bg-dark: #0b0b10;
+            --bg-gradient: radial-gradient(circle at top center, rgba(27, 40, 56, 0.8) 0%, rgba(11, 11, 16, 0.95) 80%);
+            
+            /* Glassmorphism Cards */
+            --bg-card: rgba(30, 30, 45, 0.6);
+            --bg-card-border: rgba(255, 255, 255, 0.1);
+            --backdrop-blur: 12px;
+
+            /* Neon Accents (Dynamic) */
+            --accent-primary: #00f3ff; /* Default: Electric Cyan */
+            --accent-secondary: #bc13fe; /* Neon Purple */
+            --accent-glow: rgba(0, 243, 255, 0.5);
+            
+            /* Text */
+            --text-main: #ffffff;
+            --text-muted: #b0b0cc;
+            
+            /* Fonts */
+            --font-heading: 'Orbitron', sans-serif;
+            --font-body: 'Roboto', sans-serif;
+            --font-code: 'VT323', monospace;
+        }
+
+        /* GOD MODE VARIABLES (Triggered by Konami Code) */
+        body.god-mode-active {
+            --accent-primary: #ffd700 !important; /* Gold */
+            --accent-secondary: #ff4500 !important; /* Orange */
+            --accent-glow: rgba(255, 215, 0, 0.6) !important;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            /* FEATURE: Custom Crosshair Cursor */
+            cursor: crosshair;
+        }
+
+        /* FEATURE: Neon Text Selection */
+        ::selection {
+            background: var(--accent-primary);
+            color: #000;
+            text-shadow: none;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
+
+        body {
+            background: var(--bg-dark);
+            background-image: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            transition: background 0.5s;
+            position: relative;
+        }
+
+        /* Interactive Elements Pointer */
+        a, button, select, .theme-dot, .game-card, .logo, .submit-btn, .social-icon {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2300f3ff" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/></svg>') 12 12, pointer;
+        }
+
+        /* --- FEATURE: PARTICLE BACKGROUND --- */
+        #bg-particles {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; /* Behind everything */
+            pointer-events: none;
+        }
+
+        /* --- FEATURE: BOOT SCREEN --- */
+        #boot-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 40px;
+            font-family: var(--font-code);
+            color: var(--accent-primary);
+            font-size: 1.2rem;
+            pointer-events: none; /* Let clicks pass through if stuck */
+        }
+        
+        .boot-text-line {
+            opacity: 0;
+            animation: fadeInLine 0.1s forwards;
+        }
+        
+        @keyframes fadeInLine { to { opacity: 1; } }
+
+        /* --- FEATURE: CRT / RETRO MODE --- */
+        body.retro-mode::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 9998;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+        body.retro-mode {
+            text-shadow: 2px 0px 4px var(--accent-primary);
+            filter: contrast(1.2) brightness(1.1);
+        }
+
+        /* --- FEATURE: GLITCH TEXT EFFECT --- */
+        .glitch-text {
+            position: relative;
+        }
+        
+        .glitch-text:hover {
+            animation: glitch-anim 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+            color: var(--accent-primary);
+        }
+
+        @keyframes glitch-anim {
+            0% { transform: translate(0) }
+            20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) }
+            60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) }
+            100% { transform: translate(0) }
+        }
+
+        /* --- FEATURE: ACHIEVEMENTS POPUP --- */
+        #achievement-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .achievement-card {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid var(--accent-primary);
+            border-left: 5px solid var(--accent-primary);
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: #fff;
+            font-family: var(--font-heading);
+            width: 300px;
+            transform: translateX(120%); /* Hidden */
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 15px var(--accent-glow);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .achievement-card.show {
+            transform: translateX(0);
+        }
+
+        .trophy-icon { font-size: 2rem; }
+
+        /* --- HEADER & NAV --- */
+        .main-header {
+            background: rgba(11, 11, 16, 0.85);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--bg-card-border);
+            backdrop-filter: blur(var(--backdrop-blur));
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--text-main);
+            text-shadow: 0 0 10px var(--accent-glow);
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: transform 0.3s;
+        }
+        
+        .logo:hover {
+            transform: scale(1.05);
+            color: var(--accent-primary);
+        }
+
+        /* Theme Picker & Sound */
+        .settings-panel {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .theme-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: transform 0.2s;
+        }
+        .theme-dot:hover { transform: scale(1.2); }
+        
+        .icon-btn {
+            background: none;
+            border: 1px solid var(--text-muted);
+            color: var(--text-muted);
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+        .icon-btn:hover, .icon-btn.active {
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+            text-shadow: 0 0 8px var(--accent-primary);
+        }
+
+        .main-nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            position: relative;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-family: var(--font-heading);
+        }
+
+        .main-nav a:hover, .main-nav a.active {
+            color: var(--accent-primary);
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .main-nav a::after {
+            content: '';
+            position: absolute;
+            width: 0%;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--accent-primary);
+            transition: width 0.3s;
+            box-shadow: 0 0 10px var(--accent-primary);
+        }
+
+        .main-nav a:hover::after, .main-nav a.active::after {
+            width: 100%;
+        }
+
+        /* --- LAYOUT UTILITIES --- */
+        .portal-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: 80vh;
+        }
+
+        /* Animation */
+        .section-view {
+            display: none;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .section-view.active-section {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- SECTION: HERO --- */
+        .hero-section {
+            text-align: center;
+            padding: 60px 0 80px;
+            position: relative;
+        }
+
+        .hero-section h2 {
+            font-family: var(--font-heading);
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #fff, var(--accent-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px var(--accent-glow);
+            min-height: 1.2em; /* Keeps space for typewriter */
+        }
+        
+        /* FEATURE: Typewriter Cursor */
+        .typewriter-cursor {
+            display: inline-block;
+            width: 10px;
+            background-color: var(--accent-primary);
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        
+        .hero-section p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* --- FILTER BAR --- */
+        .filter-bar {
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .filter-bar label {
+            font-family: var(--font-heading);
+            color: var(--accent-primary);
+            font-size: 0.9rem;
+        }
+
+        .filter-bar select {
+            background: rgba(0,0,0,0.3);
+            color: var(--text-main);
+            border: 1px solid var(--accent-primary);
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-family: var(--font-body);
+            cursor: pointer;
+            outline: none;
+            transition: box-shadow 0.3s;
+            backdrop-filter: blur(5px);
+        }
+        
+        .filter-bar select:hover {
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        /* --- GAME GRID & 3D TILT --- */
+        .game-showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            perspective: 1000px; /* Essential for 3D tilt */
+        }
+
+        .game-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 20px;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            /* FEATURE: 3D Properties */
+            transition: transform 0.1s ease-out, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            backdrop-filter: blur(10px);
+            transform-style: preserve-3d;
+        }
+
+        /* 3D Tilt Hover - Enhanced with Hover Media Query for Mobile Polish */
+        @media (hover: hover) {
+            .game-card:hover {
+                border-color: var(--accent-primary);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px var(--accent-glow);
+            }
+            .game-card:hover .card-image img {
+                transform: scale(1.15);
+                opacity: 0.8; /* Video Hover Effect */
+            }
+            .game-card:hover .card-title {
+                color: var(--accent-primary);
+            }
+            .game-card:hover .play-btn {
+                border-color: var(--accent-primary);
+                color: #000;
+                box-shadow: 0 0 20px var(--accent-glow);
+            }
+            .game-card:hover .play-btn::before {
+                width: 100%;
+            }
+        }
+
+        .card-image {
+            height: 200px;
+            background-color: #000;
+            overflow: hidden;
+            position: relative;
+            transform: translateZ(20px); /* Pops out in 3D */
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s, opacity 0.3s;
+        }
+        
+        /* Gradient Overlay on Image */
+        .card-image::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to top, var(--bg-card) 0%, transparent 100%);
+        }
+
+        .card-content {
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            transform: translateZ(30px); /* Text floats above card */
+        }
+
+        .card-title {
+            color: var(--text-main);
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .card-genre {
+            color: var(--accent-secondary);
+            font-size: 0.85em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .play-btn {
+            margin-top: auto;
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 12px 0;
+            border-radius: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: var(--font-heading);
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            transform: translateZ(40px); /* Button floats highest */
+        }
+
+        .play-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 0%; height: 100%;
+            background: var(--accent-primary);
+            z-index: -1;
+            transition: width 0.3s;
+        }
+
+        /* --- ABOUT SECTION & SKILL BARS --- */
+        .about-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .about-card {
+            background: var(--bg-card);
+            padding: 50px;
+            border-radius: 20px;
+            border: 1px solid var(--bg-card-border);
+            margin-bottom: 40px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .profile-photo {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--accent-primary);
+            box-shadow: 0 0 30px var(--accent-glow);
+            margin-bottom: 30px;
+            transition: transform 0.3s;
+        }
+        
+        .profile-photo:hover {
+            transform: rotate(5deg) scale(1.05);
+        }
+
+        /* Skill Progress Bars */
+        .skills-container {
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .skill-item {
+            margin-bottom: 15px;
+        }
+        
+        .skill-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-family: var(--font-heading);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .progress-bar-bg {
+            background: rgba(255,255,255,0.1);
+            height: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
+            width: 0%; /* JS will animate this */
+            border-radius: 10px;
+            transition: width 1.5s ease-in-out;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* --- DEVLOG --- */
+        .devlog-container {
+            max-width: 900px;
+            margin: 0 auto 60px;
+        }
+        
+        .devlog-card {
+            background: var(--bg-card);
+            border-left: 4px solid var(--accent-primary);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 0 10px 10px 0;
+            position: relative;
+        }
+        
+        .devlog-date {
+            font-size: 0.8rem;
+            color: var(--accent-primary);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .devlog-title {
+            font-size: 1.2rem;
+            font-family: var(--font-heading);
+            margin: 5px 0 10px;
+            color: var(--text-main);
+        }
+
+        /* --- MINI GAME (SNAKE) --- */
+        .arcade-container {
+            text-align: center;
+            margin: 40px auto 80px;
+            max-width: 600px;
+        }
+        
+        .game-canvas-wrapper {
+            border: 4px solid var(--accent-secondary);
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(188, 19, 254, 0.4);
+            display: inline-block;
+            background: #000;
+            padding: 5px;
+        }
+        
+        canvas {
+            display: block;
+            background: #111;
+        }
+        
+        .game-controls-info {
+            margin-top: 15px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* --- CONTACT --- */
+        .contact-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .submit-btn {
+            display: inline-block;
+            width: auto;
+            padding: 18px 50px;
+            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+            color: #fff;
+            font-weight: 700;
+            font-family: var(--font-heading);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 0 50px rgba(188, 19, 254, 0.6);
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(0, 243, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0); }
+        }
+
+        /* --- FOOTER & SOCIAL ICONS --- */
+        .main-footer {
+            text-align: center;
+            padding: 40px;
+            margin-top: auto;
+            border-top: 1px solid var(--bg-card-border);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            background: rgba(0,0,0,0.5);
+        }
+
+        .social-links-footer {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .social-icon {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-heading);
+        }
+
+        .social-icon:hover {
+            color: var(--accent-primary);
+            transform: translateY(-3px);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .main-header {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px;
+            }
+            .hero-section h2 {
+                font-size: 2.2rem;
+            }
+            .game-showcase-grid {
+                grid-template-columns: 1fr;
+            }
+            .filter-bar {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="boot-screen"></div>
+
+    <canvas id="bg-particles"></canvas>
+
+    <div id="achievement-container"></div>
+
+    <header class="main-header">
+        <div class="header-left">
+            <div class="logo glitch-text" onclick="app.showSection('home')">🎮 MY PORTAL</div>
+            
+            <div class="settings-panel">
+                <div class="theme-dot" style="background: #00f3ff;" onclick="app.changeTheme('#00f3ff', '#bc13fe')" title="Cyberpunk"></div>
+                <div class="theme-dot" style="background: #39ff14;" onclick="app.changeTheme('#39ff14', '#00f3ff')" title="Matrix"></div>
+                <div class="theme-dot" style="background: #ff00ff;" onclick="app.changeTheme('#ff00ff', '#ffea00')" title="Synthwave"></div>
+                
+                <button id="retro-btn" class="icon-btn" onclick="app.toggleRetro()" title="Retro CRT Mode">📺</button>
+                <button id="sound-btn" class="icon-btn" onclick="app.toggleSound()" title="Sound On/Off">🔊</button>
+            </div>
+        </div>
+
+        <nav class="main-nav">
+            <a href="#" onclick="app.showSection('home')" id="nav-home" class="active">Home</a>
+            <a href="#" onclick="app.showSection('about')" id="nav-about">About Me</a>
+            <a href="#" onclick="app.showSection('arcade')" id="nav-arcade">Arcade</a>
+            <a href="#" onclick="app.showSection('devlog')" id="nav-devlog">Devlog</a>
+            <a href="#" onclick="app.showSection('contact')" id="nav-contact">Contact</a>
+        </nav>
+    </header>
+
+    <main class="portal-container">
+        
+        <section id="home" class="section-view active-section">
+            <div class="hero-section">
+                <h2 id="typewriter-text"></h2>
+                <p>Games by PRIYANK SOLANKI. Dive into a world of fun!</p>
+            </div>
+
+            <div class="filter-bar"> 
+                <label for="genre-select">Filter by Genre:</label>
+                <select id="genre-select">
+                    <option value="all">All Games</option> 
+                    <option value="platformer">Platformer</option>
+                    <option value="puzzle">Endless Runner</option>
+                    <option value="rpg">RPG</option>
+                    <option value="action">Action</option>     
+                </select>
+            </div>
+
+            <div class="game-showcase-grid" id="game-grid">
+                <a href="https://priyank-solanki.itch.io/rocket-boost" target="_blank" class="game-card" data-genre="platformer">
+                    <div class="card-image">
+                        <img src="Rocket-Boost.png" alt="Sharp Shooter Game">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Sharp-Shooter</h3>
+                        <span class="card-genre">Platformer</span>
+                        <div class="play-btn">Play Now</div>
+                    </div>
+                </a>
+                
+                <a href="https://priyank-solanki.itch.io/escape" target="_blank" class="game-card" data-genre="puzzle">
+                    <div class="card-image">
+                         <img src="Escape.png" alt="Escape Game">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Escape</h3>
+                        <span class="card-genre">Endless Runner</span>
+                        <div class="play-btn">Play Now</div>
+                    </div>
+                </a>
+                
+                <a href="https://priyank-solanki.itch.io/mythical-dungeons" target="_blank" class="game-card" data-genre="rpg">
+                    <div class="card-image">
+                         <img src="Mythical_Dungeons.png" alt="Mythical Dungeon Game">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Mythical Dungeon</h3>
+                        <span class="card-genre">RPG</span>
+                        <div class="play-btn">Play Now</div>
+                    </div>
+                </a>
+
+                <a href="https://priyank-solanki.itch.io/monster-chase" target="_blank" class="game-card" data-genre="action">
+                    <div class="card-image">
+                         <img src="Monster_chase.png" alt="Monster Chase Game">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">Monster Chase</h3>
+                        <span class="card-genre">Action</span>
+                        <div class="play-btn">Play Now</div>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <section id="about" class="section-view">
+            <div class="about-wrapper">
+                <div class="about-card">
+                    <img src="https://placehold.co/400x400/1a1a24/00ffff?text=PS" alt="Priyank Solanki" class="profile-photo">
+                    <h2 class="glitch-text" style="color: var(--accent-primary); margin-bottom: 15px;">Priyank Solanki</h2>
+                    <p style="font-size: 1.1em; color: var(--text-main);">
+                        Welcome to my personal gaming portal. I am an independent game developer passionate about creating unique and engaging experiences.
+                    </p>
+                </div>
+
+                <div class="about-card" style="text-align: left;">
+                    <h3 class="glitch-text" style="color: var(--accent-primary);">🛠️ Tech Stats</h3>
+                    <div class="skills-container">
+                        <div class="skill-item">
+                            <div class="skill-info"><span>Unity Engine (C#)</span><span>95%</span></div>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 95%;"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-info"><span>Level Design</span><span>85%</span></div>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 85%;"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-info"><span>Game Physics</span><span>80%</span></div>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 80%;"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-info"><span>Pixel Art / Aseprite</span><span>70%</span></div>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 70%;"></div></div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-info"><span>Web (HTML5/JS)</span><span>65%</span></div>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 65%;"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+     <section id="arcade" class="section-view">
+    <div class="hero-section" style="padding-bottom: 20px;">
+        <h2 class="glitch-text">Mini Arcade</h2>
+        <p>Compete for the Global High Score!</p>
+    </div>
+    
+    <div class="arcade-container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; align-items: flex-start;">
+        
+        <div style="flex: 1; min-width: 300px; max-width: 400px;">
+            <div class="game-canvas-wrapper">
+                <canvas id="snakeGame" width="400" height="400"></canvas>
+            </div>
+            <div class="game-controls-info">
+                <p>Use <strong>Arrow Keys</strong> to Move.</p>
+            </div>
+            <button class="play-btn" onclick="startSnakeGame()" style="margin-top:20px; width: 100%;">Start Game</button>
+        </div>
+
+        <div class="about-card" style="flex: 1; min-width: 300px; padding: 20px; text-align: left; margin: 0;">
+            <h3 style="color: var(--accent-primary); margin-bottom: 15px; text-align: center;">🏆 Global Leaders</h3>
+            <ul id="leaderboard-list" style="list-style: none; padding: 0; font-family: var(--font-code); font-size: 1.1rem;">
+                <li style="color: var(--text-muted); text-align: center;">Loading scores...</li>
+            </ul>
+        </div>
+
+    </div>
+</section>
+
+        <section id="devlog" class="section-view">
+            <div class="hero-section" style="padding-bottom: 20px;">
+                <h2 class="glitch-text">Transmission Log</h2>
+                <p>Latest updates from the development lab.</p>
+            </div>
+            <div class="devlog-container">
+                <div class="devlog-card">
+                    <span class="devlog-date">May 12, 2025</span>
+                    <h3 class="devlog-title">Monster Chase Released!</h3>
+                    <p style="color: var(--text-muted);">The wait is over. Monster Chase is now live on Itch.io. Features 2-player co-op and endless waves of enemies.</p>
+                </div>
+                <div class="devlog-card">
+                    <span class="devlog-date">April 20, 2025</span>
+                    <h3 class="devlog-title">Mythical Dungeon Update v1.2</h3>
+                    <p style="color: var(--text-muted);">Patched the collision bug in Level 2. Added new "Dark Mode" lighting effects to the dungeon rendering.</p>
+                </div>
+                <div class="devlog-card">
+                    <span class="devlog-date">March 15, 2025</span>
+                    <h3 class="devlog-title">New Portfolio Launched</h3>
+                    <p style="color: var(--text-muted);">Welcome to my new gaming portal! I've aggregated all my projects here for easier access.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="section-view">
+            <div class="contact-wrapper">
+                <div class="hero-section" style="border: none;">
+                    <h2 class="glitch-text">Get In Touch</h2>
+                    <p>Found a bug? Have a request? Just want to chat dev?</p>
+                </div>
+                <div class="contact-form" style="text-align: center; padding: 60px 40px; backdrop-filter: blur(15px);">
+                    <h3 style="color: var(--accent-primary); font-family: var(--font-heading); font-size: 1.8rem; margin-bottom: 20px;">Direct Email</h3>
+                    <p style="margin-bottom: 40px; font-size: 1.1rem; color: var(--text-muted);">Prefer to send a direct email? Click below to open your mail client.</p>
+                    <a href="mailto:priyank9853@gmail.com" class="submit-btn">
+                        ✉️ Send Email to Priyank
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="main-footer">
+        &copy; 2025 Priyank Solanki Games. All Rights Reserved. <br>
+        Built with Code & Coffee.
+        <div class="social-links-footer">
+            <a href="https://github.com/priyank-solanki" target="_blank" class="social-icon" title="GitHub Repo">💻 GitHub</a>
+            <a href="mailto:priyank9853@gmail.com" class="social-icon" title="Email Me">📧 Gmail</a>
+        </div>
+    </footer>
+
+    <script>
+        // --- AUDIO ENGINE ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let isMuted = false;
+
+        function playSound(type) {
+            if (isMuted || audioCtx.state === 'suspended') {
+                audioCtx.resume();
+                if(isMuted) return;
+            }
+            
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+
+            if (type === 'hover') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                gainNode.gain.setValueAtTime(0.05, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+            } else if (type === 'click') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(150, now);
+                gainNode.gain.setValueAtTime(0.05, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+            } else if (type === 'success') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.setValueAtTime(554, now + 0.1);
+                osc.frequency.setValueAtTime(659, now + 0.2);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.linearRampToValueAtTime(0, now + 0.6);
+                osc.start(now); osc.stop(now + 0.6);
+            } else if (type === 'type') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(800, now);
+                gainNode.gain.setValueAtTime(0.01, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.start(now); osc.stop(now + 0.05);
+            }
+        }
+
+        // --- PARTICLE BACKGROUND ---
+        function initParticles() {
+            const canvas = document.getElementById('bg-particles');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let particles = [];
+            for (let i = 0; i < 50; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    size: Math.random() * 2 + 1
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-primary').trim();
+                
+                particles.forEach((p, index) => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    particles.forEach((p2, index2) => {
+                        if (index !== index2) {
+                            let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                            if (dist < 150) {
+                                ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-glow').trim();
+                                ctx.lineWidth = 0.2;
+                                ctx.beginPath();
+                                ctx.moveTo(p.x, p.y);
+                                ctx.lineTo(p2.x, p2.y);
+                                ctx.stroke();
+                            }
+                        }
+                    });
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+
+        // --- ACHIEVEMENT SYSTEM ---
+        const unlockedAchievements = new Set();
+        function unlockAchievement(title) {
+            if(unlockedAchievements.has(title)) return;
+            unlockedAchievements.add(title);
+            playSound('success');
+            
+            const container = document.getElementById('achievement-container');
+            const card = document.createElement('div');
+            card.className = 'achievement-card';
+            card.innerHTML = `<span class="trophy-icon">🏆</span><div><div style="font-size:0.8em; color:var(--accent-primary)">ACHIEVEMENT UNLOCKED</div><div>${title}</div></div>`;
+            container.appendChild(card);
+            
+            requestAnimationFrame(() => card.classList.add('show'));
+            setTimeout(() => {
+                card.classList.remove('show');
+                setTimeout(() => card.remove(), 600);
+            }, 4000);
+        }
+
+        // --- GAME APP LOGIC ---
+        const app = {
+            settings: {
+                themePrimary: '#00f3ff',
+                themeSecondary: '#bc13fe',
+                sound: true,
+                retro: false,
+                highScore: 0
+            },
+
+            loadSettings: () => {
+                const saved = localStorage.getItem('portalSettings');
+                if (saved) {
+                    app.settings = JSON.parse(saved);
+                    app.changeTheme(app.settings.themePrimary, app.settings.themeSecondary, false);
+                    isMuted = !app.settings.sound;
+                    document.getElementById('sound-btn').innerText = isMuted ? '🔇' : '🔊';
+                    if (app.settings.retro) document.body.classList.add('retro-mode');
+                    document.getElementById('snake-highscore').innerText = app.settings.highScore;
+                }
+            },
+
+            saveSettings: () => {
+                localStorage.setItem('portalSettings', JSON.stringify(app.settings));
+            },
+
+            showSection: (sectionId) => {
+                playSound('click');
+                document.querySelectorAll('.section-view').forEach(sec => sec.classList.remove('active-section'));
+                document.getElementById(sectionId).classList.add('active-section');
+                document.querySelectorAll('.main-nav a').forEach(link => link.classList.remove('active'));
+                document.getElementById('nav-' + sectionId).classList.add('active');
+                
+                // FEATURE: Dynamic Tab Titles
+                const titles = {
+                    'home': 'Home',
+                    'about': 'About Me',
+                    'arcade': 'Arcade',
+                    'devlog': 'Devlog',
+                    'contact': 'Contact'
+                };
+                document.title = `Priyank Solanki | ${titles[sectionId]}`;
+                
+                window.scrollTo(0, 0);
+            },
+
+            initFilter: () => {
+                const genreSelect = document.getElementById('genre-select');
+                const gameCards = document.querySelectorAll('.game-card'); 
+                genreSelect.addEventListener('change', () => {
+                    playSound('click');
+                    const selectedGenre = genreSelect.value;
+                    gameCards.forEach(card => {
+                        const cardGenre = card.getAttribute('data-genre');
+                        const shouldShow = (selectedGenre === 'all' || selectedGenre === cardGenre);
+                        if (shouldShow) {
+                            card.style.display = 'flex'; 
+                            requestAnimationFrame(() => {
+                                card.style.opacity = '1';
+                                card.style.transform = 'translateY(0)';
+                            });
+                        } else {
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateY(20px)';
+                            setTimeout(() => card.style.display = 'none', 300);
+                        }
+                    });
+                });
+            },
+
+            changeTheme: (primary, secondary, save = true) => {
+                if(save) playSound('click');
+                document.documentElement.style.setProperty('--accent-primary', primary);
+                document.documentElement.style.setProperty('--accent-secondary', secondary);
+                document.documentElement.style.setProperty('--accent-glow', primary + '80');
+                if(save) {
+                    app.settings.themePrimary = primary;
+                    app.settings.themeSecondary = secondary;
+                    app.saveSettings();
+                    unlockAchievement("System Hacker");
+                }
+            },
+
+            toggleSound: () => {
+                isMuted = !isMuted;
+                app.settings.sound = !isMuted;
+                document.getElementById('sound-btn').innerText = isMuted ? '🔇' : '🔊';
+                app.saveSettings();
+                if(!isMuted) playSound('click');
+            },
+
+            toggleRetro: () => {
+                document.body.classList.toggle('retro-mode');
+                app.settings.retro = document.body.classList.contains('retro-mode');
+                app.saveSettings();
+                playSound('click');
+                unlockAchievement("Time Traveler");
+            },
+
+            init: () => {
+                // Boot Sequence
+                const bootScreen = document.getElementById('boot-screen');
+                if(!sessionStorage.getItem('booted')) { // Only show boot on first load
+                    const lines = ["INITIALIZING CORE...", "LOADING ASSETS...", "ACCESS GRANTED."];
+                    let delay = 0;
+                    lines.forEach((line) => {
+                        setTimeout(() => {
+                            const p = document.createElement('div');
+                            p.className = 'boot-text-line';
+                            p.innerText = "> " + line;
+                            bootScreen.appendChild(p);
+                            playSound('type');
+                        }, delay);
+                        delay += 600;
+                    });
+                    setTimeout(() => {
+                        bootScreen.style.opacity = '0';
+                        setTimeout(() => bootScreen.style.display = 'none', 500);
+                        setTimeout(() => typeWriter("Handcrafted Worlds", "typewriter-text"), 500);
+                    }, delay + 500);
+                    sessionStorage.setItem('booted', 'true');
+                } else {
+                    bootScreen.style.display = 'none';
+                    typeWriter("Handcrafted Worlds", "typewriter-text");
+                }
+
+                app.loadSettings();
+                app.initFilter();
+                initParticles();
+
+                // 3D Tilt - Mobile check handled in CSS via media hover
+                const cards = document.querySelectorAll('.game-card');
+                cards.forEach(card => {
+                    card.addEventListener('mousemove', (e) => {
+                        if(window.innerWidth < 768) return; // Disable on mobile JS side too
+                        const rect = card.getBoundingClientRect();
+                        const x = e.clientX - rect.left - rect.width / 2;
+                        const y = e.clientY - rect.top - rect.height / 2;
+                        card.style.transform = `perspective(1000px) rotateX(${y / -10}deg) rotateY(${x / 10}deg) scale(1.02)`;
+                    });
+                    card.addEventListener('mouseleave', () => {
+                        card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+                    });
+                    card.addEventListener('mouseenter', () => playSound('hover'));
+                });
+
+                // General sounds
+                document.querySelectorAll('a, button, .logo, .theme-dot, select, .social-icon').forEach(el => {
+                    el.addEventListener('mouseenter', () => playSound('hover'));
+                });
+
+                // Scroll
+                window.addEventListener('scroll', () => {
+                    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+                        unlockAchievement("Deep Diver");
+                    }
+                });
+            }
+        };
+
+        // --- TYPEWRITER ---
+        function typeWriter(text, elementId) {
+            let i = 0;
+            const element = document.getElementById(elementId);
+            element.innerHTML = ""; 
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, 100);
+                } else {
+                    element.innerHTML += '<span class="typewriter-cursor">&nbsp;</span>';
+                }
+            }
+            type();
+        }
+
+        // --- KONAMI CODE ---
+        const konamiCode = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+        let konamiIndex = 0;
+        document.addEventListener('keydown', (e) => {
+            if (e.key === konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    document.body.classList.add('god-mode-active');
+                    unlockAchievement("God Mode Activated");
+                    playSound('success');
+                    konamiIndex = 0;
+                }
+            } else { konamiIndex = 0; }
+        });
+
+// --- SUPABASE CONFIGURATION ---
+// PASTE YOUR KEYS HERE
+const SUPABASE_URL = 'https://zkqvefcuiltkilxlvqbb.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InprcXZlZmN1aWx0a2lseGx2cWJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0NzE0NTUsImV4cCI6MjA4MTA0NzQ1NX0.0x6sBQrqMkvW2gJvdov6pDJcV3wJvKk4qngaMeBA83s';
+
+const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Function to fetch and display scores
+async function updateLeaderboard() {
+    const list = document.getElementById('leaderboard-list');
+    
+    // Get top 10 scores, ordered by score descending
+    const { data, error } = await _supabase
+        .from('scores')
+        .select('player_name, score')
+        .order('score', { ascending: false })
+        .limit(10);
+
+    if (error) {
+        console.error('Error fetching scores:', error);
+        list.innerHTML = '<li style="color:red">Failed to load scores.</li>';
+        return;
+    }
+
+    // Render list
+    list.innerHTML = data.map((entry, index) => {
+        let color = '#fff';
+        if(index === 0) color = '#ffd700'; // Gold
+        if(index === 1) color = '#c0c0c0'; // Silver
+        if(index === 2) color = '#cd7f32'; // Bronze
+        
+        return `<li style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;">
+            <span style="color:${color}">#${index + 1} ${entry.player_name}</span>
+            <span style="color:var(--accent-primary)">${entry.score}</span>
+        </li>`;
+    }).join('');
+}
+
+// Load scores when page opens
+updateLeaderboard();
+
+// --- SNAKE GAME LOGIC (Updated for Cloud) ---
+let snakeGameInterval;
+
+function startSnakeGame() {
+    playSound('click');
+    const canvas = document.getElementById('snakeGame');
+    const ctx = canvas.getContext('2d');
+    const box = 20;
+    let snake = [{x: 9 * box, y: 10 * box}];
+    let food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
+    let score = 0;
+    let d;
+
+    document.addEventListener("keydown", direction);
+    function direction(event) {
+        if(event.keyCode == 37 && d != "RIGHT") d = "LEFT";
+        else if(event.keyCode == 38 && d != "DOWN") d = "UP";
+        else if(event.keyCode == 39 && d != "LEFT") d = "RIGHT";
+        else if(event.keyCode == 40 && d != "UP") d = "DOWN";
+    }
+
+    function draw() {
+        ctx.fillStyle = "#111"; ctx.fillRect(0, 0, 400, 400);
+        for(let i = 0; i < snake.length; i++) {
+            ctx.fillStyle = (i == 0) ? app.settings.themePrimary : app.settings.themeSecondary;
+            ctx.fillRect(snake[i].x, snake[i].y, box, box);
+            ctx.strokeStyle = "#000"; ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+        }
+        ctx.fillStyle = "red"; ctx.fillRect(food.x, food.y, box, box);
+
+        let snakeX = snake[0].x; let snakeY = snake[0].y;
+        if(d == "LEFT") snakeX -= box;
+        if(d == "UP") snakeY -= box;
+        if(d == "RIGHT") snakeX += box;
+        if(d == "DOWN") snakeY += box;
+
+        if(snakeX == food.x && snakeY == food.y) {
+            score++;
+            playSound('hover');
+            food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
+        } else { snake.pop(); }
+
+        // GAME OVER CHECK
+        if(snakeX < 0 || snakeX > 19 * box || snakeY < 0 || snakeY > 19 * box || collision(snakeX, snakeY, snake)) {
+            clearInterval(snakeGameInterval);
+            playSound('success'); // Reusing success sound for game over alert
+            
+            // --- NEW: Ask for name and save to cloud ---
+            setTimeout(async () => {
+                let playerName = prompt(`GAME OVER! Score: ${score}\nEnter your name for the Global Leaderboard:`);
+                
+                if (playerName && playerName.trim() !== "") {
+                    // Send to Supabase
+                    const { error } = await _supabase
+                        .from('scores')
+                        .insert([{ player_name: playerName, score: score }]);
+                    
+                    if (!error) {
+                        alert("Score Uploaded!");
+                        updateLeaderboard(); // Refresh the list
+                    } else {
+                        console.error(error);
+                        alert("Error uploading score.");
+                    }
+                }
+            }, 100);
+        }
+        
+        let newHead = { x: snakeX, y: snakeY };
+        snake.unshift(newHead);
+    }
+
+    function collision(headX, headY, array) {
+        for(let i = 0; i < array.length; i++) {
+            if(headX == array[i].x && headY == array[i].y) return true;
+        }
+        return false;
+    }
+
+    if (snakeGameInterval) clearInterval(snakeGameInterval);
+    snakeGameInterval = setInterval(draw, 100);
+}
+
+        document.addEventListener('DOMContentLoaded', app.init);
+    </script>
+</body>
+</html>
