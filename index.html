@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎮%3C/text%3E%3C/svg%3E">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <title>Priyank Solanki | Home</title>
@@ -104,7 +108,7 @@
             font-family: var(--font-code);
             color: var(--accent-primary);
             font-size: 1.2rem;
-            pointer-events: none; /* Let clicks pass through if stuck */
+            pointer-events: none; 
         }
         
         .boot-text-line {
@@ -764,14 +768,14 @@
                     <option value="platformer">Platformer</option>
                     <option value="puzzle">Endless Runner</option>
                     <option value="rpg">RPG</option>
-                    <option value="action">Action</option>     
+                    <option value="action">Action</option>     
                 </select>
             </div>
 
             <div class="game-showcase-grid" id="game-grid">
                 <a href="https://priyank-solanki.itch.io/rocket-boost" target="_blank" class="game-card" data-genre="platformer">
                     <div class="card-image">
-                        <img src="Rocket-Boost.png" alt="Sharp Shooter Game">
+                        <img src="shooter.jpg" alt="Sharp Shooter Game">
                     </div>
                     <div class="card-content">
                         <h3 class="card-title">Sharp-Shooter</h3>
@@ -782,7 +786,7 @@
                 
                 <a href="https://priyank-solanki.itch.io/escape" target="_blank" class="game-card" data-genre="puzzle">
                     <div class="card-image">
-                         <img src="Escape.png" alt="Escape Game">
+                         <img src="escape.jpg" alt="Escape Game">
                     </div>
                     <div class="card-content">
                         <h3 class="card-title">Escape</h3>
@@ -793,7 +797,7 @@
                 
                 <a href="https://priyank-solanki.itch.io/mythical-dungeons" target="_blank" class="game-card" data-genre="rpg">
                     <div class="card-image">
-                         <img src="Mythical_Dungeons.png" alt="Mythical Dungeon Game">
+                         <img src="dungeon.jpg" alt="Mythical Dungeon Game">
                     </div>
                     <div class="card-content">
                         <h3 class="card-title">Mythical Dungeon</h3>
@@ -804,7 +808,7 @@
 
                 <a href="https://priyank-solanki.itch.io/monster-chase" target="_blank" class="game-card" data-genre="action">
                     <div class="card-image">
-                         <img src="Monster_chase.png" alt="Monster Chase Game">
+                         <img src="monster.png" alt="Monster Chase Game">
                     </div>
                     <div class="card-content">
                         <h3 class="card-title">Monster Chase</h3>
@@ -925,7 +929,7 @@
         &copy; 2025 Priyank Solanki Games. All Rights Reserved. <br>
         Built with Code & Coffee.
         <div class="social-links-footer">
-            <a href="https://github.com/Priyanksolanki9853/Gaming_Portal.github.io" target="_blank" class="social-icon" title="GitHub Repo">💻 GitHub</a>
+            <a href="https://github.com/priyank-solanki" target="_blank" class="social-icon" title="GitHub Repo">💻 GitHub</a>
             <a href="mailto:priyank9853@gmail.com" class="social-icon" title="Email Me">📧 Gmail</a>
         </div>
     </footer>
@@ -1153,41 +1157,35 @@
             },
 
             init: () => {
-                // Boot Sequence
+                // Boot Sequence - Always run logic for demo purposes now
                 const bootScreen = document.getElementById('boot-screen');
-                if(!sessionStorage.getItem('booted')) { // Only show boot on first load
-                    const lines = ["INITIALIZING CORE...", "LOADING ASSETS...", "ACCESS GRANTED."];
-                    let delay = 0;
-                    lines.forEach((line) => {
-                        setTimeout(() => {
-                            const p = document.createElement('div');
-                            p.className = 'boot-text-line';
-                            p.innerText = "> " + line;
-                            bootScreen.appendChild(p);
-                            playSound('type');
-                        }, delay);
-                        delay += 600;
-                    });
+                const lines = ["INITIALIZING CORE...", "LOADING ASSETS...", "ACCESS GRANTED."];
+                let delay = 0;
+                lines.forEach((line) => {
                     setTimeout(() => {
-                        bootScreen.style.opacity = '0';
-                        setTimeout(() => bootScreen.style.display = 'none', 500);
-                        setTimeout(() => typeWriter("Handcrafted Worlds", "typewriter-text"), 500);
-                    }, delay + 500);
-                    sessionStorage.setItem('booted', 'true');
-                } else {
-                    bootScreen.style.display = 'none';
-                    typeWriter("Handcrafted Worlds", "typewriter-text");
-                }
+                        const p = document.createElement('div');
+                        p.className = 'boot-text-line';
+                        p.innerText = "> " + line;
+                        bootScreen.appendChild(p);
+                        playSound('type');
+                    }, delay);
+                    delay += 600;
+                });
+                setTimeout(() => {
+                    bootScreen.style.opacity = '0';
+                    setTimeout(() => bootScreen.style.display = 'none', 500);
+                    setTimeout(() => typeWriter("Handcrafted Worlds", "typewriter-text"), 500);
+                }, delay + 500);
 
                 app.loadSettings();
                 app.initFilter();
                 initParticles();
 
-                // 3D Tilt - Mobile check handled in CSS via media hover
+                // 3D Tilt
                 const cards = document.querySelectorAll('.game-card');
                 cards.forEach(card => {
                     card.addEventListener('mousemove', (e) => {
-                        if(window.innerWidth < 768) return; // Disable on mobile JS side too
+                        if(window.innerWidth < 768) return; 
                         const rect = card.getBoundingClientRect();
                         const x = e.clientX - rect.left - rect.width / 2;
                         const y = e.clientY - rect.top - rect.height / 2;
@@ -1199,12 +1197,10 @@
                     card.addEventListener('mouseenter', () => playSound('hover'));
                 });
 
-                // General sounds
                 document.querySelectorAll('a, button, .logo, .theme-dot, select, .social-icon').forEach(el => {
                     el.addEventListener('mouseenter', () => playSound('hover'));
                 });
 
-                // Scroll
                 window.addEventListener('scroll', () => {
                     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
                         unlockAchievement("Deep Diver");
