@@ -93,8 +93,34 @@
         #bg-particles {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; /* Behind everything */
+            /* FIXED: Changed from -1 to 0 so it sits on top of body bg, but below content */
+            z-index: 0; 
             pointer-events: none;
+        }
+
+        /* --- FEATURE: ROTATION CURSOR ICON --- */
+        /* FIXED: Added style for the rotating icon */
+        #rotation-cursor {
+            position: fixed;
+            top: 0; left: 0;
+            width: 50px; height: 50px;
+            border: 2px dashed var(--accent-primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            display: none;
+            transform-origin: center;
+            box-shadow: 0 0 15px var(--accent-glow);
+            transition: width 0.2s, height 0.2s;
+        }
+        #rotation-cursor::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 6px; height: 6px;
+            background: var(--accent-secondary);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
         }
 
         /* --- FEATURE: BOOT SCREEN --- */
@@ -298,6 +324,9 @@
             margin: 0 auto;
             padding: 40px 20px;
             min-height: 80vh;
+            /* FIXED: Ensure content sits above particles */
+            position: relative;
+            z-index: 2;
         }
 
         /* Animation */
@@ -435,6 +464,8 @@
             overflow: hidden;
             position: relative;
             transform: translateZ(20px); /* Pops out in 3D */
+            /* Feature: Rotate cursor active zone */
+            cursor: none; 
         }
 
         .card-image img {
@@ -679,6 +710,9 @@
             font-size: 0.9rem;
             color: var(--text-muted);
             background: rgba(0,0,0,0.5);
+            /* FIXED: Ensure footer is above particles */
+            position: relative;
+            z-index: 2;
         }
 
         .social-links-footer {
@@ -729,6 +763,7 @@
     <div id="boot-screen"></div>
 
     <canvas id="bg-particles"></canvas>
+    <div id="rotation-cursor"></div>
 
     <div id="achievement-container"></div>
 
@@ -1183,9 +1218,14 @@
                 app.initFilter();
                 initParticles();
 
-                // 3D Tilt
+                // 3D Tilt & FIXED 360 Rotation Logic
                 const cards = document.querySelectorAll('.game-card');
+                const rotateCursor = document.getElementById('rotation-cursor');
+
                 cards.forEach(card => {
+                    const cardImg = card.querySelector('.card-image');
+
+                    // Existing 3D Tilt on Card
                     card.addEventListener('mousemove', (e) => {
                         if(window.innerWidth < 768) return; 
                         const rect = card.getBoundingClientRect();
@@ -1193,10 +1233,41 @@
                         const y = e.clientY - rect.top - rect.height / 2;
                         card.style.transform = `perspective(1000px) rotateX(${y / -10}deg) rotateY(${x / 10}deg) scale(1.02)`;
                     });
+
                     card.addEventListener('mouseleave', () => {
                         card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
                     });
+                    
                     card.addEventListener('mouseenter', () => playSound('hover'));
+
+                    // FIXED: 360 Rotation Icon on Image Hover
+                    if (cardImg) {
+                        cardImg.addEventListener('mouseenter', () => {
+                            rotateCursor.style.display = 'block';
+                            // Slightly bigger on hover
+                            setTimeout(() => {
+                                rotateCursor.style.width = '60px';
+                                rotateCursor.style.height = '60px';
+                            }, 10);
+                        });
+                        
+                        cardImg.addEventListener('mouseleave', () => {
+                            rotateCursor.style.display = 'none';
+                            rotateCursor.style.width = '50px';
+                            rotateCursor.style.height = '50px';
+                        });
+
+                        cardImg.addEventListener('mousemove', (e) => {
+                            // Position the icon at mouse cursor
+                            rotateCursor.style.left = (e.clientX - 30) + 'px'; // Center offset
+                            rotateCursor.style.top = (e.clientY - 30) + 'px';
+                            
+                            // 360 Degree Rotation based on X position
+                            // Map screen X to rotation
+                            const rotation = e.clientX; 
+                            rotateCursor.style.transform = `rotate(${rotation}deg)`;
+                        });
+                    }
                 });
 
                 document.querySelectorAll('a, button, .logo, .theme-dot, select, .social-icon').forEach(el => {
@@ -1252,33 +1323,33 @@ const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Function to fetch and display scores
 async function updateLeaderboard() {
-    const list = document.getElementById('leaderboard-list');
-    
-    // Get top 10 scores, ordered by score descending
-    const { data, error } = await _supabase
-        .from('scores')
-        .select('player_name, score')
-        .order('score', { ascending: false })
-        .limit(10);
+    const list = document.getElementById('leaderboard-list');
+    
+    // Get top 10 scores, ordered by score descending
+    const { data, error } = await _supabase
+        .from('scores')
+        .select('player_name, score')
+        .order('score', { ascending: false })
+        .limit(10);
 
-    if (error) {
-        console.error('Error fetching scores:', error);
-        list.innerHTML = '<li style="color:red">Failed to load scores.</li>';
-        return;
-    }
+    if (error) {
+        console.error('Error fetching scores:', error);
+        list.innerHTML = '<li style="color:red">Failed to load scores.</li>';
+        return;
+    }
 
-    // Render list
-    list.innerHTML = data.map((entry, index) => {
-        let color = '#fff';
-        if(index === 0) color = '#ffd700'; // Gold
-        if(index === 1) color = '#c0c0c0'; // Silver
-        if(index === 2) color = '#cd7f32'; // Bronze
-        
-        return `<li style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;">
-            <span style="color:${color}">#${index + 1} ${entry.player_name}</span>
-            <span style="color:var(--accent-primary)">${entry.score}</span>
-        </li>`;
-    }).join('');
+    // Render list
+    list.innerHTML = data.map((entry, index) => {
+        let color = '#fff';
+        if(index === 0) color = '#ffd700'; // Gold
+        if(index === 1) color = '#c0c0c0'; // Silver
+        if(index === 2) color = '#cd7f32'; // Bronze
+        
+        return `<li style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;">
+            <span style="color:${color}">#${index + 1} ${entry.player_name}</span>
+            <span style="color:var(--accent-primary)">${entry.score}</span>
+        </li>`;
+    }).join('');
 }
 
 // Load scores when page opens
@@ -1288,86 +1359,86 @@ updateLeaderboard();
 let snakeGameInterval;
 
 function startSnakeGame() {
-    playSound('click');
-    const canvas = document.getElementById('snakeGame');
-    const ctx = canvas.getContext('2d');
-    const box = 20;
-    let snake = [{x: 9 * box, y: 10 * box}];
-    let food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
-    let score = 0;
-    let d;
+    playSound('click');
+    const canvas = document.getElementById('snakeGame');
+    const ctx = canvas.getContext('2d');
+    const box = 20;
+    let snake = [{x: 9 * box, y: 10 * box}];
+    let food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
+    let score = 0;
+    let d;
 
-    document.addEventListener("keydown", direction);
-    function direction(event) {
-        if(event.keyCode == 37 && d != "RIGHT") d = "LEFT";
-        else if(event.keyCode == 38 && d != "DOWN") d = "UP";
-        else if(event.keyCode == 39 && d != "LEFT") d = "RIGHT";
-        else if(event.keyCode == 40 && d != "UP") d = "DOWN";
-    }
+    document.addEventListener("keydown", direction);
+    function direction(event) {
+        if(event.keyCode == 37 && d != "RIGHT") d = "LEFT";
+        else if(event.keyCode == 38 && d != "DOWN") d = "UP";
+        else if(event.keyCode == 39 && d != "LEFT") d = "RIGHT";
+        else if(event.keyCode == 40 && d != "UP") d = "DOWN";
+    }
 
-    function draw() {
-        ctx.fillStyle = "#111"; ctx.fillRect(0, 0, 400, 400);
-        for(let i = 0; i < snake.length; i++) {
-            ctx.fillStyle = (i == 0) ? app.settings.themePrimary : app.settings.themeSecondary;
-            ctx.fillRect(snake[i].x, snake[i].y, box, box);
-            ctx.strokeStyle = "#000"; ctx.strokeRect(snake[i].x, snake[i].y, box, box);
-        }
-        ctx.fillStyle = "red"; ctx.fillRect(food.x, food.y, box, box);
+    function draw() {
+        ctx.fillStyle = "#111"; ctx.fillRect(0, 0, 400, 400);
+        for(let i = 0; i < snake.length; i++) {
+            ctx.fillStyle = (i == 0) ? app.settings.themePrimary : app.settings.themeSecondary;
+            ctx.fillRect(snake[i].x, snake[i].y, box, box);
+            ctx.strokeStyle = "#000"; ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+        }
+        ctx.fillStyle = "red"; ctx.fillRect(food.x, food.y, box, box);
 
-        let snakeX = snake[0].x; let snakeY = snake[0].y;
-        if(d == "LEFT") snakeX -= box;
-        if(d == "UP") snakeY -= box;
-        if(d == "RIGHT") snakeX += box;
-        if(d == "DOWN") snakeY += box;
+        let snakeX = snake[0].x; let snakeY = snake[0].y;
+        if(d == "LEFT") snakeX -= box;
+        if(d == "UP") snakeY -= box;
+        if(d == "RIGHT") snakeX += box;
+        if(d == "DOWN") snakeY += box;
 
-        if(snakeX == food.x && snakeY == food.y) {
-            score++;
-            playSound('hover');
-            food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
-        } else { snake.pop(); }
+        if(snakeX == food.x && snakeY == food.y) {
+            score++;
+            playSound('hover');
+            food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
+        } else { snake.pop(); }
 
-        // GAME OVER CHECK
-        if(snakeX < 0 || snakeX > 19 * box || snakeY < 0 || snakeY > 19 * box || collision(snakeX, snakeY, snake)) {
-            clearInterval(snakeGameInterval);
-            playSound('success'); // Reusing success sound for game over alert
-            
-            // --- NEW: Ask for name and save to cloud ---
-            setTimeout(async () => {
-                let playerName = prompt(`GAME OVER! Score: ${score}\nEnter your name for the Global Leaderboard:`);
-                
-                if (playerName && playerName.trim() !== "") {
-                    // Send to Supabase
-                    const { error } = await _supabase
-                        .from('scores')
-                        .insert([{ player_name: playerName, score: score }]);
-                    
-                    if (!error) {
-                        alert("Score Uploaded!");
-                        updateLeaderboard(); // Refresh the list
-                    } else {
-                        console.error(error);
-                        alert("Error uploading score.");
-                    }
-                }
-            }, 100);
-        }
-        
-        let newHead = { x: snakeX, y: snakeY };
-        snake.unshift(newHead);
-    }
+        // GAME OVER CHECK
+        if(snakeX < 0 || snakeX > 19 * box || snakeY < 0 || snakeY > 19 * box || collision(snakeX, snakeY, snake)) {
+            clearInterval(snakeGameInterval);
+            playSound('success'); // Reusing success sound for game over alert
+            
+            // --- NEW: Ask for name and save to cloud ---
+            setTimeout(async () => {
+                let playerName = prompt(`GAME OVER! Score: ${score}\nEnter your name for the Global Leaderboard:`);
+                
+                if (playerName && playerName.trim() !== "") {
+                    // Send to Supabase
+                    const { error } = await _supabase
+                        .from('scores')
+                        .insert([{ player_name: playerName, score: score }]);
+                    
+                    if (!error) {
+                        alert("Score Uploaded!");
+                        updateLeaderboard(); // Refresh the list
+                    } else {
+                        console.error(error);
+                        alert("Error uploading score.");
+                    }
+                }
+            }, 100);
+        }
+        
+        let newHead = { x: snakeX, y: snakeY };
+        snake.unshift(newHead);
+    }
 
-    function collision(headX, headY, array) {
-        for(let i = 0; i < array.length; i++) {
-            if(headX == array[i].x && headY == array[i].y) return true;
-        }
-        return false;
-    }
+    function collision(headX, headY, array) {
+        for(let i = 0; i < array.length; i++) {
+            if(headX == array[i].x && headY == array[i].y) return true;
+        }
+        return false;
+    }
 
-    if (snakeGameInterval) clearInterval(snakeGameInterval);
-    snakeGameInterval = setInterval(draw, 100);
+    if (snakeGameInterval) clearInterval(snakeGameInterval);
+    snakeGameInterval = setInterval(draw, 100);
 }
 
-        document.addEventListener('DOMContentLoaded', app.init);
-    </script>
+        document.addEventListener('DOMContentLoaded', app.init);
+    </script>
 </body>
 </html>
