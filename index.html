@@ -8,7 +8,7 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
 
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎮%3C/text%3E%3C/svg%3E">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB5PSIuOWVtIiBmb250LXNpemU9IjkwIj7wn46uPC90ZXh0Pjwvc3ZnPg==">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <title>Priyank Solanki | Home</title>
@@ -20,7 +20,9 @@
         :root {
             /* Deep Space Background */
             --bg-dark: #0b0b10;
-            --bg-gradient: radial-gradient(circle at top center, rgba(27, 40, 56, 0.8) 0%, rgba(11, 11, 16, 0.95) 80%);
+            
+            /* UPDATED: More transparent gradient so particles show through */
+            --bg-gradient: radial-gradient(circle at top center, rgba(27, 40, 56, 0.4) 0%, rgba(11, 11, 16, 0.8) 80%);
             
             /* Glassmorphism Cards */
             --bg-card: rgba(30, 30, 45, 0.6);
@@ -70,7 +72,7 @@
         ::-webkit-scrollbar-thumb { background: var(--accent-primary); border-radius: 4px; }
 
         body {
-            background: var(--bg-dark);
+            background-color: var(--bg-dark);
             background-image: var(--bg-gradient);
             background-attachment: fixed;
             color: var(--text-main);
@@ -108,7 +110,7 @@
             font-family: var(--font-code);
             color: var(--accent-primary);
             font-size: 1.2rem;
-            pointer-events: none; 
+            pointer-events: none; /* Let clicks pass through if stuck */
         }
         
         .boot-text-line {
@@ -929,7 +931,7 @@
         &copy; 2025 Priyank Solanki Games. All Rights Reserved. <br>
         Built with Code & Coffee.
         <div class="social-links-footer">
-            <a href="https://github.com/priyank-solanki" target="_blank" class="social-icon" title="GitHub Repo">💻 GitHub</a>
+            <a href="https://github.com/Priyanksolanki9853/Gaming_Portal.github.io" target="_blank" class="social-icon" title="GitHub Repo">💻 GitHub</a>
             <a href="mailto:priyank9853@gmail.com" class="social-icon" title="Email Me">📧 Gmail</a>
         </div>
     </footer>
