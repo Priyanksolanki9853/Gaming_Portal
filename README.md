@@ -1,5 +1,3 @@
-WEBSITE LINK - https://priyanksolanki9853.github.io/Gaming_Portal.github.io/#
-
 # 🎮 Immersive Gaming Portal Portfolio
 
 <img width="1915" height="1064" alt="Screenshot 2025-12-12 021839" src="https://github.com/user-attachments/assets/f85ba35b-740b-40a3-97cb-04d2b99da740" />
