@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <title>Priyank Solanki | Home</title>
     
@@ -763,7 +764,7 @@
                     <option value="platformer">Platformer</option>
                     <option value="puzzle">Endless Runner</option>
                     <option value="rpg">RPG</option>
-                    <option value="action">Action</option>     
+                    <option value="action">Action</option>     
                 </select>
             </div>
 
@@ -852,33 +853,31 @@
             </div>
         </section>
 
-     <section id="arcade" class="section-view">
-    <div class="hero-section" style="padding-bottom: 20px;">
-        <h2 class="glitch-text">Mini Arcade</h2>
-        <p>Compete for the Global High Score!</p>
-    </div>
-    
-    <div class="arcade-container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; align-items: flex-start;">
-        
-        <div style="flex: 1; min-width: 300px; max-width: 400px;">
-            <div class="game-canvas-wrapper">
-                <canvas id="snakeGame" width="400" height="400"></canvas>
+        <section id="arcade" class="section-view">
+            <div class="hero-section" style="padding-bottom: 20px;">
+                <h2 class="glitch-text">Mini Arcade</h2>
+                <p>Compete for the Global High Score!</p>
             </div>
-            <div class="game-controls-info">
-                <p>Use <strong>Arrow Keys</strong> to Move.</p>
+            
+            <div class="arcade-container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; align-items: flex-start;">
+                <div style="flex: 1; min-width: 300px; max-width: 400px;">
+                    <div class="game-canvas-wrapper">
+                        <canvas id="snakeGame" width="400" height="400"></canvas>
+                    </div>
+                    <div class="game-controls-info">
+                        <p>Use <strong>Arrow Keys</strong> to Move.</p>
+                    </div>
+                    <button class="play-btn" onclick="startSnakeGame()" style="margin-top:20px; width: 100%;">Start Game</button>
+                </div>
+
+                <div class="about-card" style="flex: 1; min-width: 300px; padding: 20px; text-align: left; margin: 0;">
+                    <h3 style="color: var(--accent-primary); margin-bottom: 15px; text-align: center;">🏆 Global Leaders</h3>
+                    <ul id="leaderboard-list" style="list-style: none; padding: 0; font-family: var(--font-code); font-size: 1.1rem;">
+                        <li style="color: var(--text-muted); text-align: center;">Loading scores...</li>
+                    </ul>
+                </div>
             </div>
-            <button class="play-btn" onclick="startSnakeGame()" style="margin-top:20px; width: 100%;">Start Game</button>
-        </div>
-
-        <div class="about-card" style="flex: 1; min-width: 300px; padding: 20px; text-align: left; margin: 0;">
-            <h3 style="color: var(--accent-primary); margin-bottom: 15px; text-align: center;">🏆 Global Leaders</h3>
-            <ul id="leaderboard-list" style="list-style: none; padding: 0; font-family: var(--font-code); font-size: 1.1rem;">
-                <li style="color: var(--text-muted); text-align: center;">Loading scores...</li>
-            </ul>
-        </div>
-
-    </div>
-</section>
+        </section>
 
         <section id="devlog" class="section-view">
             <div class="hero-section" style="padding-bottom: 20px;">
@@ -1255,33 +1254,33 @@ const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Function to fetch and display scores
 async function updateLeaderboard() {
-    const list = document.getElementById('leaderboard-list');
-    
-    // Get top 10 scores, ordered by score descending
-    const { data, error } = await _supabase
-        .from('scores')
-        .select('player_name, score')
-        .order('score', { ascending: false })
-        .limit(10);
+    const list = document.getElementById('leaderboard-list');
+    
+    // Get top 10 scores, ordered by score descending
+    const { data, error } = await _supabase
+        .from('scores')
+        .select('player_name, score')
+        .order('score', { ascending: false })
+        .limit(10);
 
-    if (error) {
-        console.error('Error fetching scores:', error);
-        list.innerHTML = '<li style="color:red">Failed to load scores.</li>';
-        return;
-    }
+    if (error) {
+        console.error('Error fetching scores:', error);
+        list.innerHTML = '<li style="color:red">Failed to load scores.</li>';
+        return;
+    }
 
-    // Render list
-    list.innerHTML = data.map((entry, index) => {
-        let color = '#fff';
-        if(index === 0) color = '#ffd700'; // Gold
-        if(index === 1) color = '#c0c0c0'; // Silver
-        if(index === 2) color = '#cd7f32'; // Bronze
-        
-        return `<li style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;">
-            <span style="color:${color}">#${index + 1} ${entry.player_name}</span>
-            <span style="color:var(--accent-primary)">${entry.score}</span>
-        </li>`;
-    }).join('');
+    // Render list
+    list.innerHTML = data.map((entry, index) => {
+        let color = '#fff';
+        if(index === 0) color = '#ffd700'; // Gold
+        if(index === 1) color = '#c0c0c0'; // Silver
+        if(index === 2) color = '#cd7f32'; // Bronze
+        
+        return `<li style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;">
+            <span style="color:${color}">#${index + 1} ${entry.player_name}</span>
+            <span style="color:var(--accent-primary)">${entry.score}</span>
+        </li>`;
+    }).join('');
 }
 
 // Load scores when page opens
@@ -1291,86 +1290,86 @@ updateLeaderboard();
 let snakeGameInterval;
 
 function startSnakeGame() {
-    playSound('click');
-    const canvas = document.getElementById('snakeGame');
-    const ctx = canvas.getContext('2d');
-    const box = 20;
-    let snake = [{x: 9 * box, y: 10 * box}];
-    let food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
-    let score = 0;
-    let d;
+    playSound('click');
+    const canvas = document.getElementById('snakeGame');
+    const ctx = canvas.getContext('2d');
+    const box = 20;
+    let snake = [{x: 9 * box, y: 10 * box}];
+    let food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
+    let score = 0;
+    let d;
 
-    document.addEventListener("keydown", direction);
-    function direction(event) {
-        if(event.keyCode == 37 && d != "RIGHT") d = "LEFT";
-        else if(event.keyCode == 38 && d != "DOWN") d = "UP";
-        else if(event.keyCode == 39 && d != "LEFT") d = "RIGHT";
-        else if(event.keyCode == 40 && d != "UP") d = "DOWN";
-    }
+    document.addEventListener("keydown", direction);
+    function direction(event) {
+        if(event.keyCode == 37 && d != "RIGHT") d = "LEFT";
+        else if(event.keyCode == 38 && d != "DOWN") d = "UP";
+        else if(event.keyCode == 39 && d != "LEFT") d = "RIGHT";
+        else if(event.keyCode == 40 && d != "UP") d = "DOWN";
+    }
 
-    function draw() {
-        ctx.fillStyle = "#111"; ctx.fillRect(0, 0, 400, 400);
-        for(let i = 0; i < snake.length; i++) {
-            ctx.fillStyle = (i == 0) ? app.settings.themePrimary : app.settings.themeSecondary;
-            ctx.fillRect(snake[i].x, snake[i].y, box, box);
-            ctx.strokeStyle = "#000"; ctx.strokeRect(snake[i].x, snake[i].y, box, box);
-        }
-        ctx.fillStyle = "red"; ctx.fillRect(food.x, food.y, box, box);
+    function draw() {
+        ctx.fillStyle = "#111"; ctx.fillRect(0, 0, 400, 400);
+        for(let i = 0; i < snake.length; i++) {
+            ctx.fillStyle = (i == 0) ? app.settings.themePrimary : app.settings.themeSecondary;
+            ctx.fillRect(snake[i].x, snake[i].y, box, box);
+            ctx.strokeStyle = "#000"; ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+        }
+        ctx.fillStyle = "red"; ctx.fillRect(food.x, food.y, box, box);
 
-        let snakeX = snake[0].x; let snakeY = snake[0].y;
-        if(d == "LEFT") snakeX -= box;
-        if(d == "UP") snakeY -= box;
-        if(d == "RIGHT") snakeX += box;
-        if(d == "DOWN") snakeY += box;
+        let snakeX = snake[0].x; let snakeY = snake[0].y;
+        if(d == "LEFT") snakeX -= box;
+        if(d == "UP") snakeY -= box;
+        if(d == "RIGHT") snakeX += box;
+        if(d == "DOWN") snakeY += box;
 
-        if(snakeX == food.x && snakeY == food.y) {
-            score++;
-            playSound('hover');
-            food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
-        } else { snake.pop(); }
+        if(snakeX == food.x && snakeY == food.y) {
+            score++;
+            playSound('hover');
+            food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
+        } else { snake.pop(); }
 
-        // GAME OVER CHECK
-        if(snakeX < 0 || snakeX > 19 * box || snakeY < 0 || snakeY > 19 * box || collision(snakeX, snakeY, snake)) {
-            clearInterval(snakeGameInterval);
-            playSound('success'); // Reusing success sound for game over alert
-            
-            // --- NEW: Ask for name and save to cloud ---
-            setTimeout(async () => {
-                let playerName = prompt(`GAME OVER! Score: ${score}\nEnter your name for the Global Leaderboard:`);
-                
-                if (playerName && playerName.trim() !== "") {
-                    // Send to Supabase
-                    const { error } = await _supabase
-                        .from('scores')
-                        .insert([{ player_name: playerName, score: score }]);
-                    
-                    if (!error) {
-                        alert("Score Uploaded!");
-                        updateLeaderboard(); // Refresh the list
-                    } else {
-                        console.error(error);
-                        alert("Error uploading score.");
-                    }
-                }
-            }, 100);
-        }
-        
-        let newHead = { x: snakeX, y: snakeY };
-        snake.unshift(newHead);
-    }
+        // GAME OVER CHECK
+        if(snakeX < 0 || snakeX > 19 * box || snakeY < 0 || snakeY > 19 * box || collision(snakeX, snakeY, snake)) {
+            clearInterval(snakeGameInterval);
+            playSound('success'); // Reusing success sound for game over alert
+            
+            // --- NEW: Ask for name and save to cloud ---
+            setTimeout(async () => {
+                let playerName = prompt(`GAME OVER! Score: ${score}\nEnter your name for the Global Leaderboard:`);
+                
+                if (playerName && playerName.trim() !== "") {
+                    // Send to Supabase
+                    const { error } = await _supabase
+                        .from('scores')
+                        .insert([{ player_name: playerName, score: score }]);
+                    
+                    if (!error) {
+                        alert("Score Uploaded!");
+                        updateLeaderboard(); // Refresh the list
+                    } else {
+                        console.error(error);
+                        alert("Error uploading score.");
+                    }
+                }
+            }, 100);
+        }
+        
+        let newHead = { x: snakeX, y: snakeY };
+        snake.unshift(newHead);
+    }
 
-    function collision(headX, headY, array) {
-        for(let i = 0; i < array.length; i++) {
-            if(headX == array[i].x && headY == array[i].y) return true;
-        }
-        return false;
-    }
+    function collision(headX, headY, array) {
+        for(let i = 0; i < array.length; i++) {
+            if(headX == array[i].x && headY == array[i].y) return true;
+        }
+        return false;
+    }
 
-    if (snakeGameInterval) clearInterval(snakeGameInterval);
-    snakeGameInterval = setInterval(draw, 100);
+    if (snakeGameInterval) clearInterval(snakeGameInterval);
+    snakeGameInterval = setInterval(draw, 100);
 }
 
-        document.addEventListener('DOMContentLoaded', app.init);
-    </script>
+        document.addEventListener('DOMContentLoaded', app.init);
+    </script>
 </body>
 </html>
