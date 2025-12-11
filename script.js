@@ -1,6 +1,4 @@
 // --- AUDIO ENGINE ---
-// FIXED: Initialize audio context safely. 
-// Modern browsers block AudioContext from starting without a user gesture.
 let audioCtx = null;
 let isMuted = false;
 
@@ -17,11 +15,10 @@ function initAudio() {
     }
 }
 
-// Add a global click listener to unlock audio
+// Global click listener to unlock audio
 document.addEventListener('click', initAudio, { once: true });
 
 function playSound(type) {
-    // If audio context isn't ready or suspended, just return silently
     if (!audioCtx || isMuted || audioCtx.state === 'suspended') {
         return;
     }
@@ -69,7 +66,7 @@ function playSound(type) {
 // --- PARTICLE BACKGROUND ---
 function initParticles() {
     const canvas = document.getElementById('bg-particles');
-    if(!canvas) return; // Safety check
+    if(!canvas) return;
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -88,7 +85,6 @@ function initParticles() {
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // FIXED: Fallback color if CSS variable isn't ready
         let color = '#00f3ff';
         try {
             const styleColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-primary').trim();
@@ -112,14 +108,14 @@ function initParticles() {
                 if (index !== index2) {
                     let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
                     if (dist < 150) {
-                        ctx.strokeStyle = color; // Simplified for robustness
-                        ctx.globalAlpha = 0.5; // Use globalAlpha instead of hex manipulation
+                        ctx.strokeStyle = color; 
+                        ctx.globalAlpha = 0.5;
                         ctx.lineWidth = 0.2;
                         ctx.beginPath();
                         ctx.moveTo(p.x, p.y);
                         ctx.lineTo(p2.x, p2.y);
                         ctx.stroke();
-                        ctx.globalAlpha = 1.0; // Reset
+                        ctx.globalAlpha = 1.0; 
                     }
                 }
             });
@@ -276,67 +272,79 @@ const app = {
 
         app.loadSettings();
         app.initFilter();
-        // FIXED: Init particles here, guaranteed to run
-        initParticles();
-
-        // 3D Tilt & FIXED 360 Rotation Logic
-        const cards = document.querySelectorAll('.game-card');
-        const rotateCursor = document.getElementById('rotation-cursor');
-
-        cards.forEach(card => {
-            const cardImg = card.querySelector('.card-image');
-
-            // Existing 3D Tilt
-            card.addEventListener('mousemove', (e) => {
-                if(window.innerWidth < 768) return; 
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left - rect.width / 2;
-                const y = e.clientY - rect.top - rect.height / 2;
-                card.style.transform = `perspective(1000px) rotateX(${y / -10}deg) rotateY(${x / 10}deg) scale(1.02)`;
-            });
-
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
-            });
-            
-            card.addEventListener('mouseenter', () => playSound('hover'));
-
-            // FIXED: 360 Rotation Icon Logic
-            if (cardImg && rotateCursor) {
-                cardImg.addEventListener('mouseenter', () => {
-                    rotateCursor.style.display = 'block';
-                    setTimeout(() => {
-                        rotateCursor.style.width = '60px';
-                        rotateCursor.style.height = '60px';
-                    }, 10);
-                });
-                
-                cardImg.addEventListener('mouseleave', () => {
-                    rotateCursor.style.display = 'none';
-                    rotateCursor.style.width = '50px';
-                    rotateCursor.style.height = '50px';
-                });
-
-                cardImg.addEventListener('mousemove', (e) => {
-                    rotateCursor.style.left = (e.clientX - 30) + 'px'; 
-                    rotateCursor.style.top = (e.clientY - 30) + 'px';
-                    const rotation = e.clientX; 
-                    rotateCursor.style.transform = `rotate(${rotation}deg)`;
-                });
-            }
-        });
-
-        document.querySelectorAll('a, button, .logo, .theme-dot, select, .social-icon').forEach(el => {
-            el.addEventListener('mouseenter', () => playSound('hover'));
-        });
-
-        window.addEventListener('scroll', () => {
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
-                unlockAchievement("Deep Diver");
-            }
-        });
     }
 };
+
+// --- GLOBAL EVENT LISTENERS (RUN IMMEDIATELY) ---
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Initialize Particles Immediately
+    initParticles();
+
+    // 2. Initialize 3D Tilt & Rotation Logic Immediately
+    const cards = document.querySelectorAll('.game-card');
+    const rotateCursor = document.getElementById('rotation-cursor');
+
+    cards.forEach(card => {
+        const cardImg = card.querySelector('.card-image');
+
+        // Existing 3D Tilt
+        card.addEventListener('mousemove', (e) => {
+            if(window.innerWidth < 768) return; 
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            card.style.transform = `perspective(1000px) rotateX(${y / -10}deg) rotateY(${x / 10}deg) scale(1.02)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+        });
+        
+        card.addEventListener('mouseenter', () => playSound('hover'));
+
+        // FIXED: 360 Rotation Icon Logic
+        if (cardImg && rotateCursor) {
+            cardImg.addEventListener('mouseenter', () => {
+                rotateCursor.style.display = 'block';
+                setTimeout(() => {
+                    rotateCursor.style.width = '60px';
+                    rotateCursor.style.height = '60px';
+                }, 10);
+            });
+            
+            cardImg.addEventListener('mouseleave', () => {
+                rotateCursor.style.display = 'none';
+                rotateCursor.style.width = '50px';
+                rotateCursor.style.height = '50px';
+            });
+
+            cardImg.addEventListener('mousemove', (e) => {
+                // IMPORTANT: Calculate rotation based on cursor X position relative to card width
+                const rect = cardImg.getBoundingClientRect();
+                const relativeX = e.clientX - rect.left;
+                // Full rotation (0 to 360) based on mouse X position within the card image
+                const rotation = (relativeX / rect.width) * 360; 
+                
+                rotateCursor.style.left = (e.clientX - 30) + 'px'; 
+                rotateCursor.style.top = (e.clientY - 30) + 'px';
+                rotateCursor.style.transform = `rotate(${rotation}deg)`;
+            });
+        }
+    });
+
+    document.querySelectorAll('a, button, .logo, .theme-dot, select, .social-icon').forEach(el => {
+        el.addEventListener('mouseenter', () => playSound('hover'));
+    });
+
+    window.addEventListener('scroll', () => {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+            unlockAchievement("Deep Diver");
+        }
+    });
+
+    // 3. Start App Boot Sequence (Separately)
+    app.init();
+});
 
 // --- TYPEWRITER ---
 function typeWriter(text, elementId) {
@@ -505,5 +513,3 @@ function startSnakeGame() {
     if (snakeGameInterval) clearInterval(snakeGameInterval);
     snakeGameInterval = setInterval(draw, 100);
 }
-
-document.addEventListener('DOMContentLoaded', app.init);

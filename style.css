@@ -3,8 +3,8 @@
     /* Deep Space Background */
     --bg-dark: #0b0b10;
     
-    /* UPDATED: Lighter gradient so particles show through */
-    --bg-gradient: radial-gradient(circle at top center, rgba(27, 40, 56, 0.4) 0%, rgba(11, 11, 16, 0.8) 90%);
+    /* BACKGROUND FIXED: Lighter gradient so particles show through */
+    --bg-gradient: radial-gradient(circle at top center, rgba(27, 40, 56, 0.4) 0%, rgba(11, 11, 16, 0.9) 100%);
     
     /* Glassmorphism Cards */
     --bg-card: rgba(30, 30, 45, 0.6);
@@ -75,7 +75,7 @@ a, button, select, .theme-dot, .game-card, .logo, .submit-btn, .social-icon {
 #bg-particles {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    /* FIXED: Layer 1 - Above body background, below content */
+    /* FIXED: Z-Index 1 puts it above body bg, below content */
     z-index: 1; 
     pointer-events: none;
 }
@@ -86,10 +86,11 @@ a, button, select, .theme-dot, .game-card, .logo, .submit-btn, .social-icon {
     top: 0; left: 0;
     width: 50px; height: 50px;
     border: 2px dashed var(--accent-primary);
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.4);
     border-radius: 50%;
-    pointer-events: none; /* Critical: Allows clicking through */
-    z-index: 99999; /* Highest Z-Index */
+    /* CRITICAL FIX: Allows clicking the game button underneath */
+    pointer-events: none; 
+    z-index: 99999; /* Top layer */
     display: none;
     transform-origin: center;
     box-shadow: 0 0 15px var(--accent-glow);
@@ -306,9 +307,9 @@ body.retro-mode {
     margin: 0 auto;
     padding: 40px 20px;
     min-height: 80vh;
-    /* FIXED: Layer 5 - Content sits above particles (Layer 1) */
+    /* FIXED: Z-Index 10 ensures content sits ABOVE the particles (Index 1) */
     position: relative;
-    z-index: 5;
+    z-index: 10;
 }
 
 /* Animation */
