@@ -11,7 +11,7 @@
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 
-[**🔴 LIVE DEMO**] https://priyanksolanki9853.github.io/Gaming_Portal/#
+[**🔴 LIVE DEMO**](https://priyanksolanki9853.github.io/Gaming_Portal/#)
 </div>
 
 ---
