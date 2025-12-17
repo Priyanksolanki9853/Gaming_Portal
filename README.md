@@ -91,7 +91,7 @@ There are hidden interactions within the portal.
 
 * [**Itch.io Profile**](https://priyank-solanki.itch.io/)
 * [**GitHub**](https://github.com/Priyanksolanki9853)
-* [**Email**](mailto:priyank9853@gmail.com)
+* [**Email**](mailto:priyanksolanki9853@gmail.com)
 
 ---
 
